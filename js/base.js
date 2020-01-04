@@ -11,29 +11,68 @@ function autoCompleteMovie(sid) {
 	$('#' + sid).autocomplete({
 		lookup: function(query, done) {
 			if (query != "") {
-				$.get("/movie/suggest", {
-					"wd": query
-				}, function(result) {
-					if (result.status == '1') {
-						if (result.data.length > 1) {
-							done({
-								suggestions: result.data
-							});
+				$.ajax({
+					type: "get",
+					dataType: "jsonp",
+					async: false,
+					data: {
+						"wd": query
+					},
+					url: "https://api.tv920.com/parse/api.php?tp=jsonp",
+					jsonp: "cb",
+					success: function(data) {
+						if (data.success == '1') {
+							if (data.info.length > 1) {
+								var choices = [];
+								data.info.forEach(function(item) {
+									if (item && item.title && item.title.length > 0) {
+										var val = decodeURIComponent(item.title);
+										choices.push({
+											"value": val ? val : query,
+											"id": item.id,
+											"data": item
+										});
+									}
+								});
+								done({
+									suggestions: choices
+								});
+							}
 						}
+					},
+					error: function(xhr, textStatus, errorThrown) {
+
 					}
-				}, 'json');
+				});
 			}
 		},
 		onSelect: function(suggestion) {
-			if (suggestion.value != "") {
-				location.href = "/movie/search?wd=" + encodeURI(suggestion.value);
+			if (suggestion.value && suggestion.value.length > 0 && suggestion.data) {
+				window.open("https://www.tv920.com/search-" + encodeURI(suggestion.value) + ".html");
 			}
 		}
 	});
 }
 
 function autoComplete(sid, stype) {
-	var st = (stype == undefined ? 0 : stype);
+	console.log("autoComplete sid=" + sid + " stype=" + stype);
+	switch (stype) {
+		case "1":
+			sokuAuto(sid);
+			break;
+		case "2":
+			autoCompleteMovie(sid);
+			break;
+		case "3":
+			qiachu(sid);
+			break;
+		default:
+			baidu(sid);
+			break;
+	}
+}
+
+function sokuAuto(sid) {
 	$('#' + sid).autocomplete({
 		lookup: function(query, done) {
 			$.ajax({
@@ -44,7 +83,7 @@ function autoComplete(sid, stype) {
 					"query": query
 				},
 				dataType: 'jsonp',
-				jsonp: "jsoncallback", //服务端用于接收callback调用的function名的参数  
+				jsonp: "jsoncallback",
 				success: function(data) {
 					var tipdata = data.r;
 					tipdata.sort(function(a, b) {
@@ -68,34 +107,95 @@ function autoComplete(sid, stype) {
 			});
 		},
 		onSelect: function(suggestion) {
-			// console.info('You selected: ' + suggestion.value + ', ' + suggestion.year+ ', ' + suggestion.type);
-			var wd = suggestion.value;
-			if (wd != "" && st == 0) {
-				if (suggestion.type != "") {
-					st = 4;
-				} else {
-					var flagArr = ["电影", "电视", "视频", "tv", "集", "季", "直播", "卫视", "高清", "bd", "hd",
-						"720", "1080", "蓝光", "抢先", "中字", "预告片", "花絮"
-					];
-					for (var i = 0; i < flagArr.length; i++) {
-						if (wd.charAt(wd.length - 1) == "版") {
-							st = 4;
-							break;
-						}
-						if (wd.toLowerCase().indexOf(flagArr[i]) > -1) {
-							st = 4;
-							break;
-						}
-					}
-				}
-			}
-
-			if (wd != "") {
-				//console.info(type);
-				location.href = "/s?wd=" + encodeURI(wd) + "&st=" + st;
+			if (suggestion.value && suggestion.value.length > 0) {
+				window.open("https://so.youku.com/search_video/q_" + encodeURI(suggestion.value))
 			}
 
 		}
+	});
+}
 
+function qiachu(sid) {
+	$('#' + sid).autocomplete({
+		lookup: function(query, done) {
+			$.ajax({
+				type: "get",
+				url: "https://suggest.taobao.com/sug",
+				async: false,
+				data: {
+					"code": "utf-8",
+					"bucketid": 9,
+					"k": "1",
+					"src": "tmall_pc",
+					"area": "b2c",
+					"q": query
+				},
+				dataType: 'jsonp',
+				success: function(json) {
+					if (json && json.result && json.result.length > 0) {
+						var choices = json.result.map(function(item) {
+							return {
+								"value": item[0]
+							}
+						});
+						done({
+							suggestions: choices
+						});
+					}
+				},
+				error: function(xhr, textStatus, errorThrown) {
+					console.log(errorThrown);
+				}
+			});
+		},
+		onSelect: function(suggestion) {
+			if (suggestion.value && suggestion.value.length > 0) {
+				window.open("http://qiachu.com/tao/index.php?r=l&kw=" + encodeURI(suggestion.value))
+			}
+
+		}
+	});
+}
+
+function baidu(sid) {
+	$('#' + sid).autocomplete({
+		lookup: function(query, done) {
+			$.ajax({
+				type: "get",
+				url: "https://www.baidu.com/sugrec",
+				async: false,
+				data: {
+					"ie": "utf-8",
+					"json": 1,
+					"prod": "pc",
+					"pwd": "hao",
+					"from": "pc_web",
+					"wd": query
+				},
+				dataType: 'jsonp',
+				jsonp: "cb",
+				success: function(json) {
+					if (json && json.g && json.g.length > 0) {
+						var choices = json.g.map(function(item) {
+							return {
+								"value": item.q ? item.q : query
+							}
+						});
+						done({
+							suggestions: choices
+						});
+					}
+				},
+				error: function(xhr, textStatus, errorThrown) {
+
+				}
+			});
+		},
+		onSelect: function(suggestion) {
+			if (suggestion.value && suggestion.value.length > 0) {
+				window.open("https://www.baidu.com/s?isource=1991th&itype=web&ie=utf-8&wd=" + encodeURI(suggestion.value))
+			}
+
+		}
 	});
 }
