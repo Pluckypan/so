@@ -7,6 +7,40 @@ function searchSubmit(sid) {
 	}
 }
 
+function search() {
+	var wd = $("#wd").val();
+	switch ($("#stname").val()) {
+		case "1":
+			searchSoku(wd);
+			break;
+		case "2":
+			searchMovie(wd);
+			break;
+		case "3":
+			searchChuqia(wd);
+			break;
+		default:
+			searchBaidu(wd);
+			break;
+	}
+}
+
+function searchChuqia(wd) {
+	window.open("http://qiachu.com/tao/index.php?r=l&kw=" + encodeURI(wd))
+}
+
+function searchBaidu(wd) {
+	window.open("https://www.baidu.com/s?isource=1991th&itype=web&ie=utf-8&wd=" + encodeURI(wd))
+}
+
+function searchSoku(wd) {
+	window.open("https://so.youku.com/search_video/q_" + encodeURI(wd))
+}
+
+function searchMovie(wd) {
+	window.open("https://www.tv920.com/search-" + encodeURI(wd) + ".html");
+}
+
 function autoCompleteMovie(sid) {
 	$('#' + sid).autocomplete({
 		lookup: function(query, done) {
@@ -48,7 +82,7 @@ function autoCompleteMovie(sid) {
 		},
 		onSelect: function(suggestion) {
 			if (suggestion.value && suggestion.value.length > 0 && suggestion.data) {
-				window.open("https://www.tv920.com/search-" + encodeURI(suggestion.value) + ".html");
+				searchMovie(suggestion.value)
 			}
 		}
 	});
@@ -108,7 +142,7 @@ function sokuAuto(sid) {
 		},
 		onSelect: function(suggestion) {
 			if (suggestion.value && suggestion.value.length > 0) {
-				window.open("https://so.youku.com/search_video/q_" + encodeURI(suggestion.value))
+				searchSoku(suggestion.value)
 			}
 
 		}
@@ -150,7 +184,7 @@ function qiachu(sid) {
 		},
 		onSelect: function(suggestion) {
 			if (suggestion.value && suggestion.value.length > 0) {
-				window.open("http://qiachu.com/tao/index.php?r=l&kw=" + encodeURI(suggestion.value))
+				searchChuqia(suggestion.value)
 			}
 
 		}
@@ -193,7 +227,7 @@ function baidu(sid) {
 		},
 		onSelect: function(suggestion) {
 			if (suggestion.value && suggestion.value.length > 0) {
-				window.open("https://www.baidu.com/s?isource=1991th&itype=web&ie=utf-8&wd=" + encodeURI(suggestion.value))
+				searchBaidu(suggestion.value)
 			}
 
 		}

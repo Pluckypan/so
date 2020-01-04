@@ -16,7 +16,7 @@
 		<link rel="stylesheet" href="https://at.alicdn.com/t/font_1x4nnkd5oh6w29.css">
 		<link rel="stylesheet" href="/css/main.css">
 		<link rel="stylesheet" href="/css/base.css">
-		<script src="js/common.js"></script>
+		<script src="/js/common.js"></script>
 		<script src="/js/modernizr-2.8.3.min.js"></script>
 	</head>
 	<body>
@@ -62,7 +62,7 @@
 						<a id="st_3" href="?st=3" data-type="3">优惠券</a>
 					</div>
 					<div class="search-form clearfix">
-						<form action="/s" method="get" onsubmit="return searchSubmit('wd')">
+						<form action="javascript:search();" method="get" onsubmit="return searchSubmit('wd')">
 							<input type="hidden" id="stname" name="st" value="0">
 							<input type="search" name="wd" class="wd f-fl" id="wd" placeholder="" maxlength="30" autocomplete="off">
 							<input type="submit" class="sbtn f-fl" value="搜 索">
@@ -72,23 +72,36 @@
 				<div class="tbkhotindex" style="margin:0 auto;text-align: center;margin-bottom:-25px;margin-top:-10px;"></div>
 				<div class="hot_index">
 					<div class="slideTxtBox" style="margin: 30px auto;">
+						<%var renderList=describe._render;%>
+						<%if(describe._render&&describe._render.length>=7){%>
+							<%renderList=[];%>
+							<%var other={"category":"其他","links":[]};%>
+							<%describe._render.forEach(function(c, i) {%>
+								<%if(i<7){%>
+									<%renderList.push(c);%>
+								<%} else {%>
+									<%other.links=other.links.concat(c.links)%>
+								<%}%>
+							<%})%>
+							<%renderList.push(other);%>
+						<%}%>
 						<div class="hd">
 							<ul>
-								<%if(describe._render&&describe._render.length>0){%>
-									<%describe._render.forEach(function(c, i) {%>
+								<%if(renderList&&renderList.length>0){%>
+									<%renderList.forEach(function(c, i) {%>
 										<li><%=c.category%></li>
 									<%})%>							
 								<%}%>
 							</ul>
 						</div>
 						<div class="bd">
-							<%if(describe._render&&describe._render.length>0){%>
-								<%describe._render.forEach(function(c, i) {%>
-									<ul id="ul-<%=i%>">
+							<%if(renderList&&renderList.length>0){%>
+								<%renderList.forEach(function(c, i) {%>
+									<ul id="ul-<%=i+1%>" class="nav_list">
 										<%c.links.forEach(function(p, j) {%>
-											<li>
-												<span class="num-top<%=j%>"><%=j%></span>
-												<a href="<%=p.link%>" target="<%=p.target%>">小丑</a>
+											<li class="nav_list_item">
+												<span class="num-top<%=j+1%>"><%=j+1%></span>
+												<a href="<%=p.link%>" target="<%=p.target?p.target:'_blank'%>" title="<%=p.desc%>"><%=p.name%></a>
 											</li>
 										<%})%>
 									</ul>
@@ -125,22 +138,22 @@
 		<script src="/js/jquery.SuperSlide.2.1.1.js"></script>
 		<script type="text/javascript">
 			$(function() {
-				//获得焦点	
+				
 				var oldWord = $('#wd').val();
 				$('#wd').val("").focus().val(oldWord);
 				var tempType = getQueryString("st");
-				//热门建议	
+				
 				autoComplete("wd", tempType);
-				//热门搜索	
+				
 				$(".slideTxtBox").slide();
-				//选中当前搜索分类	
+				
 				if (tempType == "") {
 					$("#st_0").addClass("on");
 				} else {
 					$('#stname').val(tempType);
 					$("#st_" + tempType).addClass("on");
 				}
-				//当浏览器大小变化时	
+				
 				$(window).resize(function() {
 					resizeFoot();
 				});
