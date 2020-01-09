@@ -1,14 +1,14 @@
-# SO
-eedoc theme 「so」
+# so
+a theme for the eedoc blogging framework
 
-### Install
-```
-$ mkdir edoc
-$ cd edoc
+## Install
+``` js
+$ mkdir nav
+$ cd nav
 $ eedoc -i
-$ git clone git@github.com:Pluckypan/so.git template/so
+$ eedoc -t clone git@github.com:Pluckypan/so.git
 $ eedoc -b
-$ eedoc -s
+$ eedoc -s 2019
 ```
 
 ### Preview
