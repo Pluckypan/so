@@ -26,7 +26,7 @@ function search() {
 }
 
 function searchChuqia(wd) {
-	window.open("http://qiachu.com/tao/index.php?r=l&kw=" + encodeURI(wd))
+	window.open("http://mall.yhm11.com/index.php?r=l&kw=" + encodeURI(wd))
 }
 
 function searchBaidu(wd) {
